@@ -13,47 +13,56 @@ const app = new Hono<{
 
 //middlewares for authentications
 app.use('/message/*', async (c, next) => {
-  // here we don't use the format "Bearer token"
-  const header = c.req.header("authorization") || "";
-  const response = await verify(header,c.env.JWT_SECRET);
-
-  if(response.id){
-    await next(); 
+  const jwt = c.req.header("Authorization");
+  if(!jwt){
+    c.status(401);
+    return c.json({error: "Unauthorized"})
   }
-  else{
+  const token = jwt.split(' ')[1];
+  const payload = await verify(token,c.env.JWT_SECRET);
+
+  if(!payload){
     c.status(403);
     return c.json({
       error: "Unauthorized"
     })
   }
+
+  await next();
 })
 
+// zod validation for signup 
 
 
 
 //signup route
-app.post('/api/v1/signup', async (c) => {
+app.post('/api/v1/user/signup', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
 
   const body = await c.req.json();
-  const user = await prisma.user.create({
-    data:{
-      email: body.email,
-      password: body.password
-    }
-  })
-  const token = await sign({id : user.id},c.env.JWT_SECRET) 
-  return c.json({
-    jwt: token 
-  });
+  try {
+    const user = await prisma.user.create({
+      data:{
+        email: body.email,
+        password: body.password,
+        name: body.name
+      }
+    })
+    const token = await sign({id : user.id},c.env.JWT_SECRET) 
+    return c.json({jwt: token });
+  } catch (error) {
+    c.status(411);
+    return c.text("User already exist")
+  }
+ 
 })
 
 
 
 //signin route
-app.post('/api/v1/signin', async (c) => {
+app.post('/api/v1/user/signin', async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
@@ -90,6 +99,9 @@ app.put('/api/v1/blog', (c) => {
   return c.text('Hello Hono!')
 })
 app.get('/api/v1/blog/:id', (c) => {
+  return c.text('Hello Hono!')
+})
+app.get('/api/v1/blog/bilk', (c) => {
   return c.text('Hello Hono!')
 })
 
