@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { verify } from "hono/jwt";
 import { JWTPayload } from "hono/utils/jwt/types";
+import { createBlogInput,updateBlogInput } from "@prabhakr4u/medium-common";
 
 export const blogRoutes = new Hono<{
     Bindings:{
@@ -45,6 +46,13 @@ blogRoutes.post('/', async (c) => {
       }).$extends(withAccelerate())
 
       const body = await c.req.json();
+      const {success} = createBlogInput.safeParse(body);
+    if(!success){
+      c.status(411);
+      return c.json({
+        message: "Inputs not correct"
+      })
+    }
       const authorId = c.get("userId");
       const blog = await prisma.post.create({
         data:{
@@ -66,7 +74,13 @@ blogRoutes.put('/', async (c) => {
       }).$extends(withAccelerate())
 
       const body = await c.req.json();
-
+      const {success} = updateBlogInput.safeParse(body);
+    if(!success){
+      c.status(411);
+      return c.json({
+        message: "Inputs not correct"
+      })
+    }
       const blog = await prisma.post.update({
         where:{
             id: body.id
