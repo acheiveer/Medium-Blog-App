@@ -35,7 +35,7 @@ export const userRoutes = new Hono<{
         }
       })
       const token = await sign({id : user.id},c.env.JWT_SECRET) 
-      return c.json({jwt: token });
+      return c.json(token);
     } catch (error) {
       c.status(411);
       return c.text("User already exist")
@@ -74,9 +74,7 @@ export const userRoutes = new Hono<{
     }
   
     const token = await sign({id: user.id},c.env.JWT_SECRET);
-    return c.json({
-      jwt: token
-    })
+    return c.json(token)
   
   })
   
