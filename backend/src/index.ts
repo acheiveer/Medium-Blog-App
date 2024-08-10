@@ -5,6 +5,8 @@ import { sign, verify } from 'hono/jwt'
 import zod from "zod"
 import { userRoutes } from './routes/userRoutes'
 import { blogRoutes } from './routes/blogRoutes'
+import { cors } from 'hono/cors'
+
 
 const app = new Hono<{
   Bindings:{
@@ -12,7 +14,7 @@ const app = new Hono<{
     JWT_SECRET: string
   }
 }>()
-
+app.use('/*', cors())
 app.route("/api/v1/user",userRoutes);
 app.route("/api/v1/blog",blogRoutes);
 
