@@ -1,37 +1,31 @@
 import { Appbar } from "../components/Appbar"
 import { BlogCard } from "../components/BlogCard"
+import { useBlogs } from "../hooks"
 
 
-export const Blogs = () =>{
-   return <div>
-    <Appbar/>
-   <div className="flex justify-center">
-    <div className="max-w-xl">
-     <BlogCard
-     authorName={"Prabhakar"}
-     title={"language that i have to learn next so that i can be a good developer"}
-     content={"client:176 [hmr] Failed to reload /src/components/BlogCard.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) is a great language"}
-     publishedDate={"1 jan 2021"}
-     />
-     <BlogCard
-     authorName={"Prabhakar"}
-     title={"language that i have to learn next so that i can be a good developer"}
-     content={"client:176 [hmr] Failed to reload /src/components/BlogCard.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) is a great language"}
-     publishedDate={"1 jan 2021"}
-     />
-     <BlogCard
-     authorName={"Prabhakar"}
-     title={"language that i have to learn next so that i can be a good developer"}
-     content={"client:176 [hmr] Failed to reload /src/components/BlogCard.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) is a great language"}
-     publishedDate={"1 jan 2021"}
-     />
-     <BlogCard
-     authorName={"Prabhakar"}
-     title={"language that i have to learn next so that i can be a good developer"}
-     content={"client:176 [hmr] Failed to reload /src/components/BlogCard.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) is a great language"}
-     publishedDate={"1 jan 2021"}
-     />
-   </div>
-   </div>
-   </div>
+export const Blogs = () => {
+    const { loading, blogs } = useBlogs();
+    if (loading) {
+        return <div>
+            Loading...
+        </div>
+    }
+    return <div>
+        <Appbar />
+        <div className="flex justify-center">
+            <div>
+                {blogs.map(blog =>
+                    <BlogCard
+                        authorName={blog.author.name || "Anonymous"}
+                        title={blog.title}
+                        content={blog.content}
+                        publishedDate={"1 jan 2021"}
+                        id={blog.id}
+                    />
+                )}
+
+
+            </div>
+        </div>
+    </div>
 }
