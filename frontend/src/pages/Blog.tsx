@@ -1,15 +1,20 @@
+import { useParams } from "react-router-dom";
+import { DetailBlog } from "../components/DetailBlog";
 import { useBlog } from "../hooks"
 
 
 //atomFamilies/selectorFamilies
 export const Blog = () =>{
-  const {loading,blog} = useBlog();
+  const {id} = useParams();
+  const {loading,blog} = useBlog({
+    id: id || ""
+  });
   if(loading){
     return <div>
       Loading...
     </div>
   }
    return <div>
-     blog
+     <DetailBlog blog={blog}/>
    </div>
 }
