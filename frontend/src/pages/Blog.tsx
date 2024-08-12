@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { DetailBlog } from "../components/DetailBlog";
 import { useBlog } from "../hooks"
+import { Spinner } from "../components/Spinner";
+import { Appbar } from "../components/Appbar";
 
 
 //atomFamilies/selectorFamilies
@@ -11,10 +13,15 @@ export const Blog = () =>{
   });
   if(loading){
     return <div>
-      Loading...
+      <Appbar/>
+      <div className="h-screen flex flex-col justify-center">
+      <div className="flex justify-center">
+        <Spinner/>
+      </div>
+    </div>
     </div>
   }
    return <div>
      <DetailBlog blog={blog}/>
    </div>
-}
+}   
