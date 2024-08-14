@@ -3,7 +3,7 @@ import { Avatar } from "./BlogCard";
 
 export const Appbar = () => {
     return (
-        <div className="border-b border-gray-200 bg-white shadow-md flex items-center justify-between px-6 py-4">
+        <div className="border-b border-gray-200 bg-slate-200 shadow-md flex items-center justify-between px-6 py-4">
             <Link to={'/blogs'} className="text-2xl font-semibold text-gray-800 hover:text-gray-600">
                 Medium
             </Link>
