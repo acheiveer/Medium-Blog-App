@@ -1,10 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react"
 import { BACKEND_URL } from "../config";
+import { useNavigate } from "react-router-dom";
 
 export interface Blog {
     "content": String,
-    "title": String,
+    "title": String, 
     "id": string,
     "author": {
         "name": string
@@ -37,6 +38,7 @@ export const useBlog = ({id}: {id: string}) =>{
 export const useBlogs = () =>{
     const [loading, setLoading] = useState(true);
     const [blogs, setBlogs] = useState<Blog[]>([]);
+    const navigate = useNavigate();
 
     useEffect(()=>{
         axios.get(`${BACKEND_URL}/api/v1/blog/bulk`,{
@@ -47,6 +49,11 @@ export const useBlogs = () =>{
         .then(response=>{
             setBlogs(response.data.blogs);
             setLoading(false);
+        })
+        .catch((error)=>{
+            if(error.response?.status===403){
+                navigate("/signin")
+            }
         })
     },[])
 
