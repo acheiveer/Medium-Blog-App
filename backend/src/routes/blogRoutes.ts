@@ -15,6 +15,66 @@ export const blogRoutes = new Hono<{
     }
 }>()
 
+  
+// use pagination here
+blogRoutes.get('/bulk', async (c) => {
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+  const blogs = await prisma.post.findMany({
+    select: {
+      content: true,
+      title: true,
+      id: true,
+      author:{
+        select:{
+          name: true
+        }
+      }
+    }
+  });
+  return c.json({
+      blogs
+  }) 
+})
+
+
+
+blogRoutes.get('/:id', async (c) => {
+  const prisma = new PrismaClient({
+      datasourceUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate())
+
+    const id =  c.req.param("id");
+    try {
+      const blog = await prisma.post.findFirst({
+          where:{
+            id: id
+          },
+          select: {
+            id: true,
+            content: true,
+            title: true,
+            author:{
+              select:{
+                name: true
+              }
+            }
+          }
+      })
+      return c.json({ blog });
+
+    } catch (error) {
+      c.status(411);
+      return c.json({
+          message: "error while fethching the blog post"
+      })
+    }
+})
+
+
+
 blogRoutes.use("/*", async (c,next)=>{
     const authHeader = c.req.header("Authorization");
     if(!authHeader){
@@ -98,60 +158,60 @@ blogRoutes.put('/', async (c) => {
 
 
   
-// use pagination here
-blogRoutes.get('/bulk', async (c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-      }).$extends(withAccelerate())
+// // use pagination here
+// blogRoutes.get('/bulk', async (c) => {
+//     const prisma = new PrismaClient({
+//         datasourceUrl: c.env.DATABASE_URL,
+//       }).$extends(withAccelerate())
 
-    const blogs = await prisma.post.findMany({
-      select: {
-        content: true,
-        title: true,
-        id: true,
-        author:{
-          select:{
-            name: true
-          }
-        }
-      }
-    });
-    return c.json({
-        blogs
-    }) 
-  })
+//     const blogs = await prisma.post.findMany({
+//       select: {
+//         content: true,
+//         title: true,
+//         id: true,
+//         author:{
+//           select:{
+//             name: true
+//           }
+//         }
+//       }
+//     });
+//     return c.json({
+//         blogs
+//     }) 
+//   })
 
   
 
-blogRoutes.get('/:id', async (c) => {
-    const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
-      }).$extends(withAccelerate())
+// blogRoutes.get('/:id', async (c) => {
+//     const prisma = new PrismaClient({
+//         datasourceUrl: c.env.DATABASE_URL,
+//       }).$extends(withAccelerate())
 
-      const id =  c.req.param("id");
-      try {
-        const blog = await prisma.post.findFirst({
-            where:{
-              id: id
-            },
-            select: {
-              id: true,
-              content: true,
-              title: true,
-              author:{
-                select:{
-                  name: true
-                }
-              }
-            }
-        })
-        return c.json({ blog });
+//       const id =  c.req.param("id");
+//       try {
+//         const blog = await prisma.post.findFirst({
+//             where:{
+//               id: id
+//             },
+//             select: {
+//               id: true,
+//               content: true,
+//               title: true,
+//               author:{
+//                 select:{
+//                   name: true
+//                 }
+//               }
+//             }
+//         })
+//         return c.json({ blog });
 
-      } catch (error) {
-        c.status(411);
-        return c.json({
-            message: "error while fethching the blog post"
-        })
-      }
-  })
+//       } catch (error) {
+//         c.status(411);
+//         return c.json({
+//             message: "error while fethching the blog post"
+//         })
+//       }
+//   })
 

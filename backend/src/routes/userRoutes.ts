@@ -74,7 +74,7 @@ export const userRoutes = new Hono<{
     }
   
     const token = await sign({id: user.id},c.env.JWT_SECRET);
-    return c.json(token)
+    return c.json({token, name: user.name})
   
   })
   
