@@ -19,7 +19,7 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
             postInputs
             // here in the signin route the backend will ignore the name
         );
-        const jwt = response.data; 
+        const jwt = response.data.token; 
         localStorage.setItem("Token",jwt);
         navigate("/blogs")
        } catch (error) {
