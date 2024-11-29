@@ -138,7 +138,7 @@ blogRoutes.post('/like/:id',async (c)=>{
 
 })
 
-blogRoutes.post('/comment/:id', async (c)=>{
+blogRoutes.post("/comment/:id", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
@@ -147,26 +147,28 @@ blogRoutes.post('/comment/:id', async (c)=>{
   const userId = c.get("userId");
   const body = await c.req.json();
 
-  if(!body.content){
-    return c.json({error: "comment content is required"},400);
+  if (!userId) {
+    return c.json({ error: "User not authenticated" }, 401);
+  }
+
+  if (!body.content) {
+    return c.json({ error: "comment content is required" }, 400);
   }
 
   try {
     const comment = await prisma.comment.create({
-      data:{
+      data: {
         content: body.content,
         postId: postId,
-        authorId: userId
-      }
-    })
+        authorId: userId,
+      },
+    });
 
-    return c.json({id: comment.id,
-      message: "comment added successfully"
-    })
+    return c.json({ id: comment.id, message: "comment added successfully" });
   } catch (error) {
     return c.json({ error: "Unable to add comment" }, 500);
   }
-})
+});
 
 blogRoutes.post('/vote/:id', async (c)=>{
   const prisma = new PrismaClient({
