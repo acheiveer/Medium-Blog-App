@@ -168,6 +168,55 @@ blogRoutes.post('/comment/:id', async (c)=>{
   }
 })
 
+blogRoutes.post('/vote/:id', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  const commentId = c.req.param("id");
+  const userId = c.get("userId");
+
+   // Define the type for the request body
+   interface VoteRequestBody {
+    type: 'UPVOTE' | 'DOWNVOTE';
+  }
+
+  // Parse the request body and enforce type
+  const body = await c.req.json() as VoteRequestBody;
+
+  // Validate the vote type
+  if(!['UPVOTE','DOWNVOTE'].includes(body.type)){
+    return c.json({ error: "Invalid vote type. Use 'UPVOTE' or 'DOWNVOTE'" }, 400);
+  }
+
+  try {
+    // check if the user already voted on this comment 
+    const existingVote = await prisma.vote.findFirst({
+      where:{
+        commentId: commentId,
+        userId: userId
+      }
+    })
+
+    if(existingVote){
+      return c.json({error: "You have alreday voted on this comment"}, 400)
+    }
+
+    // Add a new vote 
+    const vote = await prisma.vote.create({
+      data:{
+        commentId: commentId,
+        userId,
+        type: body.type
+      }
+    })
+
+    return c.json({ id: vote.id, type: vote.type, message: "Vote added successfully" });
+  } catch (error) {
+    return c.json({ error: "Unable to vote on the comment" }, 500);
+  }
+})
+
 
 blogRoutes.post('/', async (c) => {
     const prisma = new PrismaClient({
@@ -225,62 +274,4 @@ blogRoutes.put('/', async (c) => {
     })
   })
 
-
-  
-// // use pagination here
-// blogRoutes.get('/bulk', async (c) => {
-//     const prisma = new PrismaClient({
-//         datasourceUrl: c.env.DATABASE_URL,
-//       }).$extends(withAccelerate())
-
-//     const blogs = await prisma.post.findMany({
-//       select: {
-//         content: true,
-//         title: true,
-//         id: true,
-//         author:{
-//           select:{
-//             name: true
-//           }
-//         }
-//       }
-//     });
-//     return c.json({
-//         blogs
-//     }) 
-//   })
-
-  
-
-// blogRoutes.get('/:id', async (c) => {
-//     const prisma = new PrismaClient({
-//         datasourceUrl: c.env.DATABASE_URL,
-//       }).$extends(withAccelerate())
-
-//       const id =  c.req.param("id");
-//       try {
-//         const blog = await prisma.post.findFirst({
-//             where:{
-//               id: id
-//             },
-//             select: {
-//               id: true,
-//               content: true,
-//               title: true,
-//               author:{
-//                 select:{
-//                   name: true
-//                 }
-//               }
-//             }
-//         })
-//         return c.json({ blog });
-
-//       } catch (error) {
-//         c.status(411);
-//         return c.json({
-//             message: "error while fethching the blog post"
-//         })
-//       }
-//   })
 
