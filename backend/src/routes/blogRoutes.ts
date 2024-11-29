@@ -138,7 +138,35 @@ blogRoutes.post('/like/:id',async (c)=>{
 
 })
 
+blogRoutes.post('/comment/:id', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
 
+  const postId = c.req.param("id");
+  const userId = c.get("userId");
+  const body = await c.req.json();
+
+  if(!body.content){
+    return c.json({error: "comment content is required"},400);
+  }
+
+  try {
+    const comment = await prisma.comment.create({
+      data:{
+        content: body.content,
+        postId: postId,
+        authorId: userId
+      }
+    })
+
+    return c.json({id: comment.id,
+      message: "comment added successfully"
+    })
+  } catch (error) {
+    return c.json({ error: "Unable to add comment" }, 500);
+  }
+})
 
 
 blogRoutes.post('/', async (c) => {
