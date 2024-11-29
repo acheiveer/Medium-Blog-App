@@ -100,6 +100,47 @@ blogRoutes.use("/*", async (c,next)=>{
 })
 
 
+blogRoutes.post('/like/:id',async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const PostId = c.req.param("id");
+  const userId = c.get("userId");
+
+  try {
+    // check if the user already liked the post 
+    const existingLike = await prisma.like.findFirst({
+      where:{
+        postId: PostId,
+        userId: userId
+      }
+    })
+
+    if(existingLike){
+      return c.json({error : "You already liked this post"})
+    }
+
+    // Add a new like 
+    const like = await prisma.like.create({
+      data:{
+        postId:PostId,
+        userId:userId
+      }
+    })
+
+    return c.json({id: like.id,
+      message: "Post liked successfully"
+    })
+  } catch (error) {
+    return c.json({ error: "Unable to like the post" }, 500);
+  }
+
+})
+
+
+
+
 blogRoutes.post('/', async (c) => {
     const prisma = new PrismaClient({
         datasourceUrl: c.env.DATABASE_URL,
