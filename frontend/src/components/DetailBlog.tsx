@@ -3,6 +3,7 @@ import { Appbar } from "./Appbar"
 import { Avatar } from "./BlogCard"
 import { CommentBar } from "./CommentBox"
 import Comments from "./Comments"
+import LikeDisLike from "./LikeDisLike"
 
 export const DetailBlog = ({ blog }: { blog: Blog }) => {
     return (
@@ -49,7 +50,8 @@ export const DetailBlog = ({ blog }: { blog: Blog }) => {
           </div>
         </div>
 
-        <div className=" flex justify-center my-4">
+        <div className=" flex space-x-10 justify-center my-4">
+          <LikeDisLike/>
           <CommentBar />
         </div>
         <div className=" flex justify-center my-4">
