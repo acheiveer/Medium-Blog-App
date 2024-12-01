@@ -73,6 +73,36 @@ blogRoutes.get('/:id', async (c) => {
     }
 })
 
+blogRoutes.get('/comment/:id', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+   const PostId = c.req.param("id");
+   try {
+    const comments =  await prisma.comment.findMany({
+      where:{postId : PostId},
+      include: {
+        author: {
+          select:{
+            id:true,
+            email:true,
+            name:true
+          }
+        }
+      },
+      orderBy:{
+        createdAt: "desc"
+      }
+     });
+     return c.json({comments});
+
+   } catch (error) {
+    console.error(error); 
+    return c.json({ error: "Unable to fetch comments" }, 500);
+   }
+})
+
 
 
 blogRoutes.use("/*", async (c,next)=>{
@@ -169,6 +199,7 @@ blogRoutes.post("/comment/:id", async (c) => {
     return c.json({ error: "Unable to add comment" }, 500);
   }
 });
+
 
 blogRoutes.post('/vote/:id', async (c)=>{
   const prisma = new PrismaClient({
