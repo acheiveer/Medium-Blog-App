@@ -103,6 +103,29 @@ blogRoutes.get('/comment/:id', async (c)=>{
    }
 })
 
+blogRoutes.get('/like/:id',async (c) =>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const PostId = c.req.param("id");
+  
+  try {
+    const likeCount  = await prisma.like.count({
+      where:{
+        postId: PostId
+      }
+    })
+    return c.json({
+      postId: PostId,
+      likes: likeCount
+    })
+  } catch (error) {
+    console.error("Error retrieving likes:", error);
+    return c.json({ error: "Unable to retrieve likes for the post" }, 500);
+  }
+})
+
 
 
 blogRoutes.use("/*", async (c,next)=>{
