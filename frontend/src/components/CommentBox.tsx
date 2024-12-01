@@ -31,6 +31,8 @@ export const CommentBar = () => {
             data: JSON.stringify({ content: content }),
         })
         alert("Comment added!");
+        setContent("");
+        window.location.reload();
     } catch (error) {
         alert("Comment not added");
         console.error(error);

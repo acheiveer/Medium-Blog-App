@@ -1,7 +1,8 @@
 import { Blog } from "../hooks"
 import { Appbar } from "./Appbar"
 import { Avatar } from "./BlogCard"
-import { CommentBar } from "./CommentBar"
+import { CommentBar } from "./CommentBox"
+import Comments from "./Comments"
 
 export const DetailBlog = ({ blog }: { blog: Blog }) => {
     return (
@@ -51,6 +52,10 @@ export const DetailBlog = ({ blog }: { blog: Blog }) => {
         <div className=" flex justify-center my-4">
           <CommentBar />
         </div>
+        <div className=" flex justify-center my-4">
+          <Comments/>
+          </div>
+        
       </div>
     );
 }
