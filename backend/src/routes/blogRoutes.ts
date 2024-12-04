@@ -343,6 +343,8 @@ blogRoutes.put('/', async (c) => {
   })
 
 
+
+//Add a Collaborator
 blogRoutes.post('/:id/collaborators', async (c) =>{
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
