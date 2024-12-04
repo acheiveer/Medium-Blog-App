@@ -390,7 +390,7 @@ blogRoutes.post('/:id/collaborators', async (c) =>{
 
 
 //Update a Collaborator's Role
-blogRoutes.post('/:id/collaborators/:collaboratorId', async (c)=>{
+blogRoutes.put('/:id/collaborators/:collaboratorId', async (c)=>{
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
