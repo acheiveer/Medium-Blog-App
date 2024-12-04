@@ -18,10 +18,17 @@ model User {
   email String @unique
   password String
   name String?
-  posts Post[]
+  role  Role @default(VIEWER) // Role-based access
+  posts Post[]         // User's own posts
   comments Comment[]  // Each user can have multiple comments
   likes    Like[]     // Each user can like multiple posts
   votes    Vote[]    // A user can vote on multiple comments
+  collaborators BlogCollaborator[] // Collaborations with posts
+}
+
+enum Role {
+  EDITOR
+  VIEWER
 }
 
 model Post{
@@ -33,7 +40,25 @@ model Post{
   authorId String
   comments  Comment[] // A post can have multiple comments
   likes     Like[]    // A post can have multiple likes
+  collaborators BlogCollaborator[] // Collaborators on the post
 }
+
+model BlogCollaborator {
+  id        String   @id @default(uuid())
+  role      CollaboratorRole
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+}
+
+enum CollaboratorRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
 
 model Comment {
   id        String    @id @default(uuid())
@@ -71,3 +96,6 @@ enum VoteType {
   UPVOTE
   DOWNVOTE
 }
+
+
+
