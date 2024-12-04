@@ -476,3 +476,45 @@ blogRoutes.delete('/:id/collaborators/:collaboratorId', async (c)=>{
   return c.json({ message: 'Collaborator removed successfully' });
 
 })
+
+//List Collaborators
+blogRoutes.get('/:id/collaborators', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const blogId = c.req.param('id');
+
+   //Ensure the blog exists 
+   const blog = await prisma.post.findUnique({
+    where:{
+      id: blogId
+    }
+  })
+  if(!blog){
+    return c.json({error: "Blog not found"}, 404);
+  }
+
+  //Ensure the requester is owner 
+  const owner = await prisma.blogCollaborator.findFirst({
+    where:{
+      postId: blogId,
+      userId: c.get('userId'),
+      role: 'OWNER'
+    }
+  })
+  if(!owner){
+    return c.json({ error: 'Only the owner can update collaborators' }, 403);
+  }
+
+  const collaboratorlist = await prisma.blogCollaborator.findMany({
+    where:{
+      postId: blogId
+    },
+    include:{
+      user: true
+    }
+  })
+
+  return c.json({ collaboratorlist });
+})
