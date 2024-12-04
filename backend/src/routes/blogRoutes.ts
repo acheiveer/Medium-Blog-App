@@ -389,3 +389,48 @@ blogRoutes.post('/:id/collaborators', async (c) =>{
 })  
 
 
+//Update a Collaborator's Role
+blogRoutes.post('/:id/collaborators/:collaboratorId', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const blogId = c.req.param('id');
+  const collaboratorId = c.req.param('collaboratorId');
+  const body = await c.req.json();
+
+  //Ensure the blog exists 
+  const blog = await prisma.post.findUnique({
+    where:{
+      id: blogId
+    }
+  })
+  if(!blog){
+    return c.json({error: "Blog not found"}, 404);
+  }
+
+  //Ensure the requester is owner 
+  const owner = await prisma.blogCollaborator.findFirst({
+    where:{
+      postId: blogId,
+      userId: c.get('userId'),
+      role: 'OWNER'
+    }
+  })
+  if(!owner){
+    return c.json({ error: 'Only the owner can update collaborators' }, 403);
+  }
+
+
+  // Update the collaborator's role
+  const updatedCollaborator = await prisma.blogCollaborator.update({
+    where:{
+      id: collaboratorId
+    },
+    data:{
+      role: body.role
+    }
+  })
+  return c.json({ message: 'Collaborator role updated', updatedCollaborator });
+
+})
