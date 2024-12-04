@@ -343,3 +343,47 @@ blogRoutes.put('/', async (c) => {
   })
 
 
+blogRoutes.post('/:id/collaborators', async (c) =>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const blogId = c.req.param('id');
+  const body = await c.req.json();
+
+  //Ensure the blog exists 
+  const blog = await prisma.post.findUnique({
+    where:{
+      id: blogId
+    }
+  })
+  if(!blogId){
+    return c.json({error: "Blog not found"}, 404);
+  }
+
+  //Ensure the requester is the owner
+  const owner = await prisma.blogCollaborator.findFirst({
+    where:{
+      postId: blogId,
+      userId: c.get('userId'),
+      role: 'OWNER'
+    }
+  });
+  if(!owner){
+    return c.json({error: "Only the owner can add collaborators"}, 403);
+  }
+
+  //Add the collaborator
+  const collaborator = await prisma.blogCollaborator.create({
+    data:{
+      postId: blogId,
+      userId: body.userId,
+      role: body.role
+    }
+  })
+
+  return c.json({ message: 'Collaborator added', collaborator });
+
+})  
+
+
