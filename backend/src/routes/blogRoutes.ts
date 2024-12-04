@@ -288,6 +288,8 @@ blogRoutes.post('/', async (c) => {
       })
     }
       const authorId = c.get("userId");
+
+       // Create the blog post
       const blog = await prisma.post.create({
         data:{
             title: body.title,
@@ -295,9 +297,19 @@ blogRoutes.post('/', async (c) => {
             authorId: authorId
         }
       })
+
+      // Add the author as a collaborator with the 'OWNER' role
+     await prisma.blogCollaborator.create({
+      data: {
+        postId: blog.id,
+        userId: authorId,
+        role: 'OWNER',
+      },
+     });
       
     return c.json({
-        id: blog.id
+        id: blog.id,
+        message: "Blog created and you are the owner"
     })
   })
 
