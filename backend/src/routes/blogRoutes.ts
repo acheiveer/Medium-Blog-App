@@ -15,6 +15,51 @@ export const blogRoutes = new Hono<{
     }
 }>()
 
+
+//Search user route 
+blogRoutes.get('/search', async (c)=>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const queryParams = c.req.query();
+  const filter = queryParams.filter || "";
+
+  try {
+    // Perform the search query
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            email: {
+              contains: filter,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+          {
+            name: {
+              contains: filter,
+              mode: 'insensitive', // Case-insensitive search
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+      },
+    });
+
+    return c.json({
+      users,
+    });
+  } catch (error) {
+    console.error('Error in search route:', error);
+    return c.json({ error: 'An error occurred while searching users' }, 500);
+  }
+})
+
   
 // use pagination here
 blogRoutes.get('/bulk', async (c) => {
@@ -476,6 +521,8 @@ blogRoutes.delete('/:id/collaborators/:collaboratorId', async (c)=>{
   return c.json({ message: 'Collaborator removed successfully' });
 
 })
+
+
 
 //List Collaborators
 blogRoutes.get('/:id/collaborators', async (c)=>{
