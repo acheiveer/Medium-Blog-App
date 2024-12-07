@@ -389,6 +389,40 @@ blogRoutes.put('/', async (c) => {
 
 
 
+//Check the blog own by the loggedin user
+blogRoutes.get('/check/:id', async (c) =>{
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+
+  const blogId = c.req.param('id');
+
+  // Check the blogs exists
+  const blog = await prisma.post.findUnique({
+    where:{
+      id: blogId
+    }
+  })
+  if(!blog){
+    return c.json({error: "Blog not found"}, 404);
+  }
+
+  // Check the user owns the blog or not 
+  const user = await prisma.blogCollaborator.findFirst({
+    where:{
+      postId: blogId,
+      userId: c.get('userId'),
+      role: 'OWNER',
+    }
+  })
+  if(!user){
+    return c.json({error: "Only the owner can add collaborators"}, 403);
+  }
+  return c.json({ message: 'You own this blog', user });
+})
+
+
+
 //Add a Collaborator
 blogRoutes.post('/:id/collaborators', async (c) =>{
   const prisma = new PrismaClient({
@@ -479,6 +513,9 @@ blogRoutes.put('/:id/collaborators/:collaboratorId', async (c)=>{
   return c.json({ message: 'Collaborator role updated', updatedCollaborator });
 
 })
+
+
+
 
 //Remove a Collaborator
 blogRoutes.delete('/:id/collaborators/:collaboratorId', async (c)=>{
