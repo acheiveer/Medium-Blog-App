@@ -4,6 +4,7 @@ import { Appbar } from "../components/Appbar";
 import { Spinner } from "../components/Spinner";
 import { useState } from "react";
 import { Button } from "../components/Button";
+import { Users } from "../components/SearchUser";
 
 function Collaborator() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +31,7 @@ function Collaborator() {
         <div className="grid grid-cols-12 px-10 w-full pt-200 max-w-screen-lg pt-12">
           <div className="col-span-8">
             <div className="text-5xl font-extrabold">Collaborator Manage</div>
-            
+             <Users/>
 
 
 
