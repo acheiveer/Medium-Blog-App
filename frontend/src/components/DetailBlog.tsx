@@ -22,7 +22,7 @@ export const DetailBlog = ({ blog }: { blog: Blog }) => {
               Authorization: localStorage.getItem("Token")
           }
       })
-      navigate('/publish')
+      navigate(`/collaborator/${id}`)
 
     } catch (error) {
       alert("Only the owner can add collaborators");

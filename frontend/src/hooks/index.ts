@@ -62,3 +62,27 @@ export const useBlogs = () =>{
         blogs
     }
 }
+
+export const useFetchCollaborators = ({id}: {id: string}) =>{
+    const [collaborator, setCollaborator] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+   useEffect(()=>{
+    axios.get(`${BACKEND_URL}/api/v1/blog/${id}/collaborators`,
+        {
+            headers:{
+                Authorization: localStorage.getItem("Token")
+            }
+        }).then(response =>{
+            console.log(response.data.collaboratorlist);
+            setCollaborator(response.data.collaboratorlist);
+            setLoading(false);
+        })
+
+   },[id])
+
+   return{
+    collaborator,
+    loading
+   }
+}
