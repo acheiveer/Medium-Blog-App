@@ -1,11 +1,34 @@
+import axios from "axios"
 import { Blog } from "../hooks"
 import { Appbar } from "./Appbar"
 import { Avatar } from "./BlogCard"
+import { Button } from "./Button"
 import { CommentBar } from "./CommentBox"
 import Comments from "./Comments"
 import LikeDisLike from "./LikeDisLike"
+import { BACKEND_URL } from "../config"
+import { useNavigate, useParams } from "react-router-dom"
 
 export const DetailBlog = ({ blog }: { blog: Blog }) => {
+  const {id} = useParams();
+  const navigate = useNavigate();
+
+  const handleClick = async () =>{
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/v1/blog/check/${id}`,
+      {
+          headers: {
+              Authorization: localStorage.getItem("Token")
+          }
+      })
+      navigate('/publish')
+
+    } catch (error) {
+      alert("Only the owner can add collaborators");
+    }
+    
+  }
     return (
       <div>
         <Appbar />
@@ -16,7 +39,7 @@ export const DetailBlog = ({ blog }: { blog: Blog }) => {
               <div className="text-slate-500 pt-2">posted on 24 september</div>
               <div className="pt-4">{blog.content}</div>
             </div>
-            <div className=" col-span-4">
+            <div className=" col-span-3">
               <div className="text-slate-600 text-lg">Author</div>
               <div className="flex w-full">
                 <div className="pr-4 flex flex-col justify-center">
@@ -32,6 +55,9 @@ export const DetailBlog = ({ blog }: { blog: Blog }) => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="px-12 col-span-1">
+                <Button onClick={handleClick} label="Manage Collaborator"/>
             </div>
           </div>
         </div>
